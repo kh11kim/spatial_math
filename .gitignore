@@ -1,7 +1,5 @@
-spatial_tools.py
-.vscode/launch.json
+.vscode/*
 spatial_math.pyc
 Untitled.ipynb
-.ipynb_checkpoints/Untitled-checkpoint.ipynb
-__pycache__/spatial_math.cpython-38.pyc
-__pycache__/test.cpython-38.pyc
+__pycache__/*
+.ipynb_checkpoints/*

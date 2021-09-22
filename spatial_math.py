@@ -14,56 +14,18 @@ Todo:
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
-
-def frame_plot(R, p, frame=None, dims=[0,10]*3, axeslength=1, axeswidth=5):
-    """[summary]
-
-    Args:
-        R ([type]): [description]
-        p ([type]): [description]
-        frame ([type], optional): [description]. Defaults to None.
-        dims ([type], optional): [description]. Defaults to [0,10]*3.
-        axeslength (int, optional): [description]. Defaults to 1.
-        axeswidth (int, optional): [description]. Defaults to 5.
-    """
-    # is_3d_plot = False
-    # if len(plt.get_fignums()) != 0:
-    #     fig = plt.gcf()
-    #     if len(fig.axes) != 0:
-    #         ax = plt.gca()
-    #         if ax.__class__.__name__ == "Axes3DSubplot":
-    #             is_3d_plot = True
-    
-    # if not is_3d_plot:
-    #     fig = plt.figure()
-    #     ax = plt.axes(projection='3d')    
-    
-    # xaxis = np.vstack([p, p+R[:3,0]]).T * axeslength
-    # yaxis = np.vstack([p, p+R[:3,1]]).T * axeslength
-    # zaxis = np.vstack([p, p+R[:3,2]]).T * axeslength
-
-    # ax.plot(*xaxis, 'r', linewidth=axeswidth)
-    # ax.plot(*yaxis, 'g', linewidth=axeswidth)
-    # ax.plot(*zaxis, 'b', linewidth=axeswidth)
-
-    # ax.set_xlim3d(dims[:2])
-    # ax.set_ylim3d(dims[2:4])
-    # ax.set_zlim3d(dims[4:])
-    # ax.set_xlabel('x')
-    # ax.set_ylabel('y')
-    # ax.set_zlabel('z')
-
-    # frame_name_offset = [-0.5, -0.5, -0.5]
-    # frame_name_pos = R@np.array(frame_name_offset).T+p
-    # if frame is not None:
-    #     ax.text(*frame_name_pos, "{{{}}}".format(frame))
-
-
+from visual import frame_plot, plot3d_init
 
 class base:
     """[summary]
     Collection of Basic functions.
     """
+    axeslength = 1
+    axeswidth = 5
+    dims = None
+    fig = None
+    ax = None
+
     def __init__(self):
         self.R = np.eye(3)
         self.p = np.zeros(3)
@@ -118,8 +80,34 @@ class base:
     def plot(self, **kwargs):
         """[summary]
         """
-        # frame_plot(self.R, self.p, **kwargs)
+        if self.fig is None:
+            raise Exception("plot_init first")
+        frame_plot(self.R, self.p, self.ax, base.scale,
+                    axeslength=self.axeslength,
+                    axeswidth=self.axeswidth,
+                    **kwargs)
+    
+    def plot_init(self, dims=None):
+        if dims is None:
+            raise Exception("dims are needed!")        
+        base.dims = dims
+        base.scale = dims[1]-dims[0]
+        base.fig = plt.figure()
+        base.ax = plt.axes(projection='3d')
+        base.ax = plot3d_init(base.ax, base.dims)
+        self.plot_frame_0()
 
+    def plot_clear(self):
+        base.ax.clear()
+        base.ax = plot3d_init(base.ax, base.dims)
+        self.plot_frame_0()
+    
+    def plot_frame_0(self):
+        frame_plot(np.eye(3), np.zeros(3), self.ax, base.scale,
+                    color='k',
+                    axeslength=self.axeslength,
+                    axeswidth=self.axeswidth)
+        
 class SO3(base):
     """[summary]
     SO3 class
@@ -413,6 +401,9 @@ class SO3(base):
 
 
 class SE3(SO3):
+    """[summary]
+    SE3 class
+    """
     def __init__(self, *args):
         """[summary]
 
@@ -424,10 +415,12 @@ class SE3(SO3):
                 self.R = np.eye(3)
                 self.p = np.zeros(3)
             elif len(args) == 1:
-                if (type(args[0]) is np.ndarray) \
-                    & (args[0].shape == (4,4)):
+                if (args[0].shape == (4,4)):
                     self.R, self.p = \
                             self._T_to_Rp(args[0])   
+                elif (args[0].shape == (3,3)):
+                    self.R = args[0]
+                    self.p = np.zeros(3)
                 else:
                     raise Exception()
             elif len(args) == 2:
