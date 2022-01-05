@@ -2,6 +2,43 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 
+
+# axeslength = 1
+# axeswidth = 5
+# dims = None
+# fig = None
+# ax = None
+# def plot(self, **kwargs):
+#     """[summary]
+#     """
+#     if self.fig is None:
+#         raise Exception("plot_init first")
+#     frame_plot(self.R, self.p, self.ax, base.scale,
+#                 axeslength=self.axeslength,
+#                 axeswidth=self.axeswidth,
+#                 **kwargs)
+
+# def plot_init(self, dims=None):
+#     if dims is None:
+#         raise Exception("dims are needed!")        
+#     base.dims = dims
+#     base.scale = dims[1]-dims[0]
+#     base.fig = plt.figure()
+#     base.ax = plt.axes(projection='3d')
+#     base.ax = plot3d_init(base.ax, base.dims)
+#     self.plot_frame_0()
+
+# def plot_clear(self):
+#     base.ax.clear()
+#     base.ax = plot3d_init(base.ax, base.dims)
+#     self.plot_frame_0()
+
+# def plot_frame_0(self):
+#     frame_plot(np.eye(3), np.zeros(3), self.ax, base.scale,
+#                 color='k',
+#                 axeslength=self.axeslength,
+#                 axeswidth=self.axeswidth)
+
 def frame_plot(R, p, ax, scale, frame=None, color=None, axeslength=1, axeswidth=5):
     """[summary]
     Draw Frame by R, p

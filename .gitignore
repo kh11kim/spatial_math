@@ -1,5 +1,6 @@
 .vscode/*
-spatial_math.pyc
 Untitled.ipynb
 __pycache__/*
 .ipynb_checkpoints/*
+spatial_math/__pycache__/*
+tests/__pycache__/*
