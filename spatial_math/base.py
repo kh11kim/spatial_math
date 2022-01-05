@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from abc import ABC
 
 class Base(ABC):
@@ -220,5 +219,187 @@ class Base(ABC):
         w = np.cos(angle/2)
         x, y, z = axis / s
         return np.array([w,x,y,z])
+
+    @staticmethod    
+    def _Rt_to_T(R, t):
+        """[summary]
+
+        Args:
+            R ([type]): [description]
+            p ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
+        R = Base._check_matrix(3, R)
+        t = Base._check_vector(3, t)
+        return np.block([[R,       t[:,None]],
+                         [np.zeros((1,3)), 1]])
+
+    @staticmethod              
+    def _T_to_Rt(T):
+        """[summary]
+
+        Args:
+            T ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
+        T = Base._check_matrix(4, T)
+        R, t = T[:3,:3], T[:3,3]
+        return R, t
+    
+    @staticmethod    
+    def _quaternion_trans_to_T(qtn, t):
+        """[summary]
+
+        Args:
+            qtn ([type]): [description]
+            t ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
+        R = Base._quaternion_to_R(qtn)
+        t = Base._check_vector(3, t)
+        return np.block([[R,       t[:,None]],
+                         [np.zeros((1,3)), 1]])
+
+    @staticmethod
+    def _Rt_to_twistangle(R, t):
+        """[summary]
+
+        Args:
+            T ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
+        T = Base._Rt_to_T(R, t)
+        if np.allclose(T, np.eye(4)):
+            tw = np.array([1.,0.,0.,0.,0.,0])
+            theta = 0
+        elif np.allclose(R, np.eye(3)):
+            # pure translation
+            omega = np.zeros(3)
+            theta = np.linalg.norm(t)
+            v = t/theta
+            tw = np.hstack([omega, v])
+        else:
+            omega, theta = Base._R_to_axisangle(R)
+            Ginv = 1/theta*np.eye(3) \
+                - 1/2*Base._skew(omega) \
+                + (1/theta-1/2/np.tan(theta/2))*Base._skew(omega).dot(Base._skew(omega))
+            v = Ginv.dot(t)
+            tw = np.hstack([omega, v])
+        return tw, theta
+    
+    @staticmethod
+    def _twistangle_to_Rt(tw, angle):
+        """[summary]
+        Convert Twist-angle to R, p
+
+        Args:
+            tw (size:6 np.ndarray): twist
+            angle (float) : angle
+
+        Returns:
+            [type]: [description]
+        """
+        tw = Base._check_vector(6, tw)
+        omega, v = tw[:3], tw[3:]
+        theta = angle
+        G = np.eye(3)*theta \
+            + (1-np.cos(theta))*Base._skew(omega) \
+            + (theta-np.sin(theta))*Base._skew(omega).dot(Base._skew(omega))
+
+        if np.linalg.norm(omega) == 0:
+            R = np.eye(3)
+            t = v*theta
+        else:
+            R = Base._axisangle_to_R(omega, theta)
+            t = G.dot(v)
         
+        return R, t
+
+    @staticmethod
+    def _quaternion_trans_to_twistangle(qtn, t):
+        """[summary]
+
+        Args:
+            T ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
+        qtn = Base._check_vector(4, qtn)
+        t = Base._check_vector(3, t)
+
+        if np.allclose(qtn,[1,0,0,0]):
+            if np.allclose(np.linalg.norm(t),0):
+                tw = np.array([1.,0.,0.,0.,0.,0.])
+                theta = 0
+            else:
+                # pure translation
+                omega = np.zeros(3)
+                theta = np.linalg.norm(t)
+                v = t/theta
+                tw = np.hstack([omega, v])
+        else:
+            omega, theta = Base._quaternion_to_axisangle(qtn)
+            Ginv = 1/theta*np.eye(3) \
+                - 1/2*Base._skew(omega) \
+                + (1/theta-1/2/np.tan(theta/2))*Base._skew(omega).dot(Base._skew(omega))
+            v = Ginv.dot(t)
+            tw = np.hstack([omega, v])
+        return tw, theta
+    
+    @staticmethod
+    def _twistangle_to_quaternion_trans(tw, angle):
+        """[summary]
+        Convert Twist-angle to R, p
+
+        Args:
+            tw (size:6 np.ndarray): twist
+            angle (float) : angle
+
+        Returns:
+            [type]: [description]
+        """
+        R, t = Base._twistangle_to_Rt(tw, angle)
+        qtn = Base._R_to_quaternion(R)
+        return qtn, t
+    
+    #--private functions--
+    @staticmethod
+    def _get_quaternion_by_axis(theta, axis, unit="rad"):
+        """[summary]
+        private function to make quaternion
+        using a specified axis and an angle.
+
+        Args:
+            theta (float): rotation angle
+            axis (str): ["x", "y", "z"] axis name string
+            unit (str, optional): ["rad", "deg"]. Defaults to "rad".
+
+        Raises:
+            Exception: if unit is neither "rad" nor "deg".
+
+        Returns:
+            qtn [np.ndarray(4)]: quaternion
+        """
+        if unit == "rad":
+            pass
+        elif unit == "deg":
+            theta = theta/180.*np.pi
+        else: 
+            raise Exception("Wrong unit!")
         
+        if axis == "x":
+            omega = np.array([1,0,0]) 
+        elif axis == "y":
+            omega = np.array([0,1,0]) 
+        elif axis == "z":
+            omega = np.array([0,0,1])
+        return Base._axisangle_to_quaternion(omega, theta)

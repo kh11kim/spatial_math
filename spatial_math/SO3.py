@@ -1,6 +1,6 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from spatial_math.base import Base
+from base import Base
+
 class SO3(Base):
     """[summary]
     SO3 class
@@ -13,7 +13,7 @@ class SO3(Base):
         """
         if len(args) == 0:
             self._qtn = np.array([1,0,0,0])
-            #self.R = np.eye(3) # no input
+            
         elif (len(args) == 1) \
                 & (type(args[0]) is np.ndarray):
             if args[0].shape == (3,3):
@@ -153,38 +153,7 @@ class SO3(Base):
         """
         return self._quaternion_to_axisangle(self._qtn)
 
-    #--private functions--
-    @staticmethod
-    def _get_quaternion_by_axis(theta, axis, unit="rad"):
-        """[summary]
-        private function to make quaternion
-        using a specified axis and an angle.
-
-        Args:
-            theta (float): rotation angle
-            axis (str): ["x", "y", "z"] axis name string
-            unit (str, optional): ["rad", "deg"]. Defaults to "rad".
-
-        Raises:
-            Exception: if unit is neither "rad" nor "deg".
-
-        Returns:
-            qtn [np.ndarray(4)]: quaternion
-        """
-        if unit == "rad":
-            pass
-        elif unit == "deg":
-            theta = theta/180.*np.pi
-        else: 
-            raise Exception("Wrong unit!")
-        
-        if axis == "x":
-            omega = np.array([1,0,0]) 
-        elif axis == "y":
-            omega = np.array([0,1,0]) 
-        elif axis == "z":
-            omega = np.array([0,0,1])
-        return Base._axisangle_to_quaternion(omega, theta)
+    
 
     #--SO3 operators--
     def __matmul__(self, X):
@@ -195,7 +164,7 @@ class SO3(Base):
             if len(X) == 3:
                 return self.R @ X
                 
-        if type(X) is SO3:
+        elif type(X) is SO3:
             w1, v1 = self._qtn[0], self._qtn[1:]
             w2, v2 = X._qtn[0], X._qtn[1:]
             qtn = np.array([w1+w2-v1@v2, *(w1*v2 + w2*v1 + np.cross(v1, v2))])

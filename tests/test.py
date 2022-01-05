@@ -1,6 +1,7 @@
 import unittest
 import numpy as np
-from spatial_math.SO3 import *
+from spatial_math.SO3 import SO3
+from spatial_math.SE3 import SE3
 from spatial_math.base import Base
 
 class BaseTest(unittest.TestCase):
@@ -30,6 +31,17 @@ class BaseTest(unittest.TestCase):
         axis_, angle_ = Base._quaternion_to_axisangle(qtn_)
         self.assertTrue(np.allclose(angle_, angle))
         self.assertTrue(np.allclose(axis_, axis))
+    
+    def test_twistangle_to_qtn_trans(self):
+        qtn = np.random.random(4)
+        qtn = qtn/np.linalg.norm(qtn)
+        t = np.random.random(3)
+        tw, angle = Base._quaternion_trans_to_twistangle(qtn, t)
+        qtn_, t_ = Base._twistangle_to_quaternion_trans(tw, angle)
+        tw_, angle_ = Base._quaternion_trans_to_twistangle(qtn_, t_)
+        self.assertTrue(np.allclose(angle_, angle))
+        self.assertTrue(np.allclose(tw_, tw))
+
 
 class SO3Test(unittest.TestCase):
     def isSO3(self, SO3_):
@@ -68,86 +80,60 @@ class SO3Test(unittest.TestCase):
         self.assertTrue(isEqual)
     
 
-# class SE3Test(unittest.TestCase):
-#     def isSE3(self, T):
-#         I = np.eye(4)
-#         R = T.R
-#         p = T.p
-#         Tinv = np.block([[R.T, -R.T.dot(p[:,None])],
-#                          [np.zeros([1,3]), 1]])
-#         return np.allclose(I, T.T().dot(Tinv))
+class SE3Test(unittest.TestCase):
+    def isSE3(self, SE3_):
+        I = np.eye(4)
+        R = SE3_.R
+        t = SE3_.t
+        SE3_inv = SE3(R, t).inv()
+        I_ = (SE3_ @ SE3_inv).T
+        return np.allclose(I, I_)
 
-#     def test_construct_random(self):
-#         T = SE3().random()
-#         self.assertTrue(self.isSE3(T))
+    def test_construct_random(self):
+        SE3_ = SE3.random()
+        self.assertTrue(self.isSE3(SE3_))
 
-#     def test_construct_twistangle(self):
-#         Slist = np.eye(6)
-#         for S in Slist:
-#             T = SE3().twistangle(S, 1)
-#             self.assertTrue(self.isSE3(T))
+    def test_construct_twistangle(self):
+        Slist = np.eye(6)
+        for S in Slist:
+            T = SE3.twistangle(S, 1)
+            self.assertTrue(self.isSE3(T))
     
-#     def test_construct_qtn_trans(self):
-#         qtn = [0.7071,0.7071, 0, 0]
-#         trans = np.random.rand(3)
-#         T = SE3().qtn_trans(qtn, trans)
-#         self.assertTrue(self.isSE3(T))
+    def test_construct_qtn_trans(self):
+        qtn = [0.7071,0.7071, 0, 0]
+        trans = np.random.rand(3)
+        T = SE3.qtn_trans(qtn, trans)
+        self.assertTrue(self.isSE3(T))
 
-#     def test_construct_Rxyz(self):
-#         Rx = SE3().Rx(np.pi/2)
-#         self.assertTrue(self.isSE3(Rx))
-#         Ry = SE3().Ry(np.pi/2)
-#         self.assertTrue(self.isSE3(Ry))
-#         Rz = SE3().Rx(np.pi/2)
-#         self.assertTrue(self.isSE3(Rz))
+    def test_construct_Rxyz(self):
+        SE3_x = SE3.Rx(np.pi/2)
+        self.assertTrue(self.isSE3(SE3_x))
+        SE3_y = SE3.Ry(np.pi/2)
+        self.assertTrue(self.isSE3(SE3_y))
+        SE3_z = SE3.Rz(np.pi/2)
+        self.assertTrue(self.isSE3(SE3_z))
     
-#     def test_construct_trans(self):
-#         TransList = np.random.rand(5,3)
-#         for trans in TransList:
-#             T = SE3().trans(trans)
-#             self.assertTrue(self.isSE3(T))
+    def test_construct_trans(self):
+        TransList = np.random.rand(5,3)
+        for trans in TransList:
+            SE3_trans = SE3.trans(trans)
+            self.assertTrue(self.isSE3(SE3_trans))
 
-#     def test_inv(self):
-#         T = SE3().random()
-#         T_ = T.inv().inv()
-#         isEqual = np.allclose(T.T(), T_.T())
-#         self.assertTrue(isEqual)
-
-#     def test_conversion_to_qtn_trans(self):
-#         Tlist = []
-#         Tlist.append(SE3().random()) #random R
-#         Tlist.append(SE3().Rx(180,'deg')) #180
-#         Tlist.append(SE3().Rz(0,'deg')) #0
-#         Tlist.append(SE3().trans([3,2,4])) #pure translation
-
-#         for T in Tlist:
-#             qtn, trans = T.to_qtn_trans()
-#             T_ = SE3().qtn_trans(qtn, trans)
-#             isEqual = np.allclose(T.T(), T_.T())
-#             self.assertTrue(isEqual)
-
-#     def test_conversion_to_twistangle(self):
-#         Tlist = []
-#         Tlist.append(SE3().random()) #random R
-#         Tlist.append(SE3().Rx(180,'deg')) #180
-#         Tlist.append(SE3().Rz(0,'deg')) #0
-#         Tlist.append(SE3().trans([3,2,4])) #pure translation
-
-#         for T in Tlist:
-#             twist, angle = T.to_twistangle()
-#             T_ = SE3().twistangle(twist, angle)
-#             isEqual = np.allclose(T.T(), T_.T())
-#             self.assertTrue(isEqual)
+    def test_inv(self):
+        SE3_1 = SE3.random()
+        SE3_2 = SE3_1.inv().inv()
+        isEqual = np.allclose(SE3_1.T, SE3_2.T)
+        self.assertTrue(isEqual)
     
-#     def test_dot(self):
-#         vlist = []
-#         vlist.append(np.random.rand(4,1))
-#         vlist.append(np.random.rand(3))
-#         vlist.append(np.random.rand(3,1))
-#         vlist.append(np.random.rand(4,4))
-#         vlist.append(SE3())
-#         for v in vlist:
-#             SE3().dot(v)
+    def test_dot(self):
+        vlist = []
+        vlist.append(np.random.rand(4,1))
+        vlist.append(np.random.rand(3))
+        vlist.append(np.random.rand(3,1))
+        vlist.append(np.random.rand(4,4))
+        vlist.append(SE3())
+        for v in vlist:
+            SE3().dot(v)
 
 if __name__ == '__main__':
     unittest.main()

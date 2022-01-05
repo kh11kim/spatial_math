@@ -1,83 +1,84 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits import mplot3d
+from SO3 import SO3
+from SE3 import SE3
 
+class Viz:
+    def __init__(self, axeslength=1, axeswidth=5, dims=None):
+        self.axeslength = axeslength
+        self.axeswidth = axeswidth
+        self.dims = dims
+        if dims is None:
+            self.dims = [-1, 1]*3
+        self.scale = self.dims[1] - self.dims[0]
+        self._plot_init()
+    
+    def plot(self, obj, **kwargs):
+        """[summary]
+        """
+        if self.fig is None:
+            raise Exception("plot_init first")
+        if type(obj) == SO3:
+            R = obj.R
+            t = np.zeros(3)
+        elif type(obj) == SE3:
+            R, t = obj.R, obj.t
+        print(R, t)
+        self._plot_frame(R, t, self.scale,
+                    **kwargs)
 
-# axeslength = 1
-# axeswidth = 5
-# dims = None
-# fig = None
-# ax = None
-# def plot(self, **kwargs):
-#     """[summary]
-#     """
-#     if self.fig is None:
-#         raise Exception("plot_init first")
-#     frame_plot(self.R, self.p, self.ax, base.scale,
-#                 axeslength=self.axeslength,
-#                 axeswidth=self.axeswidth,
-#                 **kwargs)
+    def _plot_init(self):
+        self.fig = plt.figure()
+        self.ax = plt.axes(projection='3d')
+        self.ax.set_xlim3d(self.dims[:2])
+        self.ax.set_ylim3d(self.dims[2:4])
+        self.ax.set_zlim3d(self.dims[4:])
+        self.ax.set_xlabel('x')
+        self.ax.set_ylabel('y')
+        self.ax.set_zlabel('z')
+    
+        self.plot_frame_0()
 
-# def plot_init(self, dims=None):
-#     if dims is None:
-#         raise Exception("dims are needed!")        
-#     base.dims = dims
-#     base.scale = dims[1]-dims[0]
-#     base.fig = plt.figure()
-#     base.ax = plt.axes(projection='3d')
-#     base.ax = plot3d_init(base.ax, base.dims)
-#     self.plot_frame_0()
+    def _plot_frame(self, R, t, scale, name=None, color=None):
+        """[summary]
+        Draw Frame by R, t
 
-# def plot_clear(self):
-#     base.ax.clear()
-#     base.ax = plot3d_init(base.ax, base.dims)
-#     self.plot_frame_0()
-
-# def plot_frame_0(self):
-#     frame_plot(np.eye(3), np.zeros(3), self.ax, base.scale,
-#                 color='k',
-#                 axeslength=self.axeslength,
-#                 axeswidth=self.axeswidth)
-
-def frame_plot(R, p, ax, scale, frame=None, color=None, axeslength=1, axeswidth=5):
-    """[summary]
-    Draw Frame by R, p
-
-    Args:
-        R (3x3 np.ndarray): Rotation Matrix
-        p (size 3 np.ndarray): Translation vector
-        frame ('str', optional): the name of a frame. Defaults to None.
-        dims (size 6 np.ndarray or list, optional): 
-            view scope limit. Defaults to [0,10]*3.
-        axeslength (int, optional): [description]. Defaults to 1.
-        axeswidth (int, optional): [description]. Defaults to 5.
-    """
-    if color is None:
-        if frame is None:
-            colors = ['gray']*3
+        Args:
+            R (3x3 np.ndarray): Rotation Matrix
+            t (size 3 np.ndarray): Translation vector
+            frame ('str', optional): the name of a frame. Defaults to None.
+            dims (size 6 np.ndarray or list, optional): 
+                view scope limit. Defaults to [0,10]*3.
+            axeslength (int, optional): [description]. Defaults to 1.
+            axeswidth (int, optional): [description]. Defaults to 5.
+        """
+        if color is None:
+            if name is None:
+                colors = ['gray']*3
+            else:
+                colors = ['r','g','b']
         else:
-            colors = ['r','g','b']
-    else:
-        colors = color*3
+            colors = color*3
 
-    for i in range(3):
-        axis = np.vstack([p, p+R[:3,i]*axeslength]).T 
-        ax.plot(axis[0], axis[1], axis[2], 
-            color=colors[i], linewidth=axeswidth)
+        for i in range(3):
+            axis = np.vstack([t, t+R[:3,i]*self.axeslength]).T 
+            self.ax.plot(axis[0], axis[1], axis[2], 
+                color=colors[i], linewidth=self.axeswidth)
 
-    frame_name_offset = [-0.01, -0.01, -0.01]
-    frame_name_pos = R.dot(scale*np.array(frame_name_offset).T)+p
-    if frame is not None:
-        ax.text(*frame_name_pos, "{{{}}}".format(frame))
+        frame_name_offset = [-0.01, -0.01, -0.01]
+        frame_name_pos = R.dot(scale*np.array(frame_name_offset).T)+t
+        if name is not None:
+            self.ax.text(*frame_name_pos, "{{{}}}".format(name))
+        
 
-def plot3d_init(ax, dims):
-    ax.set_xlim3d(dims[:2])
-    ax.set_ylim3d(dims[2:4])
-    ax.set_zlim3d(dims[4:])
-    ax.set_xlabel('x')
-    ax.set_ylabel('y')
-    ax.set_zlabel('z')
-    return ax
+    def plot_frame_0(self):
+        self._plot_frame(np.eye(3), np.zeros(3), self.scale,
+                    color='k')
+
+    def clear(self):
+        self.ax.clear()
+        self.ax = self._plot_init()
+
 
 # # Check if there is a 3d figure
 # is_3d_plot = False
@@ -91,3 +92,12 @@ def plot3d_init(ax, dims):
 # # if there is no 3d figure, make one.
 # if not is_3d_plot:
 #     plot3d_init(dims)
+
+if __name__ == "__main__":
+    SE3_1 = SE3.random(scale=0.1)
+    SE3_2 = SE3.random(scale=0.1)
+    v = Viz(axeslength=1, axeswidth=5)
+    v.plot(SE3_1)
+    v.plot(SE3_2)
+    plt.show()
+    input()
