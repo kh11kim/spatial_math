@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from spatial_math.base import Base
-
 class SO3(Base):
     """[summary]
     SO3 class
