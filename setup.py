@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
  
 setup(
     name                = 'spatial_math_mini',
-    version             = '0.1',
+    version             = '0.1.3',
     description         = 'Python Module for spatial math with minimum dependency',
     author              = 'Kanghyun Kim',
     author_email        = 'kh11kim@kaist.ac.kr',
@@ -17,3 +17,8 @@ setup(
         'Programming Language :: Python'
     ],
 )
+"""build process
+1. python setup.py bdist_wheel
+2. twine upload dist/spatial_math_mini-x.x.x-py3-none-any.whl
+3. pip install spatial_math_mini -U
+"""

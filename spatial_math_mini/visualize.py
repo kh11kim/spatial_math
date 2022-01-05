@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from SO3 import SO3
-from SE3 import SE3
+from spatial_math_mini.SO3 import SO3
+from spatial_math_mini.SE3 import SE3
 
 class Viz:
     def __init__(self, axeslength=1, axeswidth=5, dims=None):
@@ -23,9 +23,9 @@ class Viz:
             t = np.zeros(3)
         elif type(obj) == SE3:
             R, t = obj.R, obj.t
-        print(R, t)
         self._plot_frame(R, t, self.scale,
                     **kwargs)
+        plt.show()
 
     def _plot_init(self):
         self.fig = plt.figure()

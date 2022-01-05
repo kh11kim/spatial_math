@@ -1,6 +1,6 @@
 import numpy as np
-from base import Base
-from SO3 import SO3
+from spatial_math_mini.base import Base
+from spatial_math_mini.SO3 import SO3
 
 class SE3(Base):
     """[summary]
@@ -219,4 +219,4 @@ class SE3(Base):
             return SE3(self.T.dot(X.T))
 
     def __repr__(self):
-        return "SE3 Class\n"+self.T().__repr__()
+        return "SE3 Class\n"+self.T.__repr__()

@@ -2,5 +2,8 @@
 Untitled.ipynb
 __pycache__/*
 .ipynb_checkpoints/*
-spatial_math/__pycache__/*
+spatial_math_mini/__pycache__/*
 tests/__pycache__/*
+build/
+dist/
+spatial_math_mini.egg-info/*

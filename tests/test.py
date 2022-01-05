@@ -1,8 +1,8 @@
 import unittest
 import numpy as np
-from spatial_math.SO3 import SO3
-from spatial_math.SE3 import SE3
-from spatial_math.base import Base
+from spatial_math_mini.SO3 import SO3
+from spatial_math_mini.SE3 import SE3
+from spatial_math_mini.base import Base
 
 class BaseTest(unittest.TestCase):
     def test_quaternion_R(self):
@@ -134,6 +134,9 @@ class SE3Test(unittest.TestCase):
         vlist.append(SE3())
         for v in vlist:
             SE3().dot(v)
+    
+    def test_print(self):
+        print(SE3())
 
 if __name__ == '__main__':
     unittest.main()

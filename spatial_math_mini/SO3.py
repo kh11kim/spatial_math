@@ -1,5 +1,5 @@
 import numpy as np
-from base import Base
+from spatial_math_mini.base import Base
 
 class SO3(Base):
     """[summary]
