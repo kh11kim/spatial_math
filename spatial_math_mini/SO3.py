@@ -39,16 +39,17 @@ class SO3(Base):
 
     # --Construction of Rotation Matrix--
     @staticmethod
-    def random():
+    def random(dist="uniform"):
         """[summary]
-        Random Generation of SO3
-        using QR decomposition
+        Uniform Random Generation of SO3
+        ref : "Effective Sampling and Distance Metrics for 3D Rigid Body Path Planning", ICRA 2004
 
         Returns:
             R [SO3]: SO3 Rotation Class
         """
-        R, _ = np.linalg.qr(np.random.randn(3,3))
-        return SO3(R)
+        if dist == "uniform":
+            qtn = SO3._uniform_sampling_quaternion()
+        return SO3(qtn)
 
     @staticmethod
     def axisangle(axis, angle):
@@ -153,7 +154,16 @@ class SO3(Base):
         """
         return self._quaternion_to_axisangle(self._qtn)
 
-    
+    #--math--
+    @staticmethod
+    def _uniform_sampling_quaternion():
+        s = np.random.random()
+        sigma1, sigma2 = np.sqrt(1-s), np.sqrt(s)
+        theta1, theta2 = np.random.uniform(size=2)
+        s1, c1 = np.sin(theta1), np.cos(theta1)
+        s2, c2 = np.sin(theta2), np.cos(theta2)
+        qtn = np.array([c2*sigma2, s1*sigma1, c1*sigma1, s2*sigma2])
+        return qtn
 
     #--SO3 operators--
     def __matmul__(self, X):
