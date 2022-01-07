@@ -25,6 +25,8 @@ class Viz:
             t = np.zeros(3)
         elif type(obj) == SE3:
             R, t = obj.R, obj.t
+        else:
+            raise Exception("input is not plotable type")
         self._plot_frame(R, t, self.scale,
                     **kwargs)
         #plt.show()

@@ -63,6 +63,10 @@ class SE3(Base):
     def T(self):
         return self._quaternion_trans_to_T(self._qtn, self._t)
 
+    @property
+    def quaternion(self):
+        return self._qtn
+
     # --Construction of Transformation Matrix--
     @staticmethod
     def random(scale=1):
