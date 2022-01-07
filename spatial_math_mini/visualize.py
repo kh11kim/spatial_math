@@ -8,10 +8,12 @@ class Viz:
         self.axeslength = axeslength
         self.axeswidth = axeswidth
         self.dims = dims
+        self.fig = None
+        self.ax = None
         if dims is None:
             self.dims = [-1, 1]*3
         self.scale = self.dims[1] - self.dims[0]
-        self._plot_init()
+        self.clear() #self._plot_init()
     
     def plot(self, obj, **kwargs):
         """[summary]
@@ -25,19 +27,7 @@ class Viz:
             R, t = obj.R, obj.t
         self._plot_frame(R, t, self.scale,
                     **kwargs)
-        plt.show()
-
-    def _plot_init(self):
-        self.fig = plt.figure()
-        self.ax = plt.axes(projection='3d')
-        self.ax.set_xlim3d(self.dims[:2])
-        self.ax.set_ylim3d(self.dims[2:4])
-        self.ax.set_zlim3d(self.dims[4:])
-        self.ax.set_xlabel('x')
-        self.ax.set_ylabel('y')
-        self.ax.set_zlabel('z')
-    
-        self.plot_frame_0()
+        #plt.show()
 
     def _plot_frame(self, R, t, scale, name=None, color=None):
         """[summary]
@@ -76,9 +66,18 @@ class Viz:
                     color='k')
 
     def clear(self):
+        if self.ax is None:
+            self.fig = plt.figure()
+            self.ax = plt.axes(projection='3d')
         self.ax.clear()
-        self.ax = self._plot_init()
-
+        self.ax.set_xlim3d(self.dims[:2])
+        self.ax.set_ylim3d(self.dims[2:4])
+        self.ax.set_zlim3d(self.dims[4:])
+        self.ax.set_xlabel('x')
+        self.ax.set_ylabel('y')
+        self.ax.set_zlabel('z')
+    
+        self.plot_frame_0()
 
 # # Check if there is a 3d figure
 # is_3d_plot = False
@@ -96,8 +95,10 @@ class Viz:
 if __name__ == "__main__":
     SE3_1 = SE3.random(scale=0.1)
     SE3_2 = SE3.random(scale=0.1)
-    v = Viz(axeslength=1, axeswidth=5)
+    v = Viz(axeslength=0.1, axeswidth=1)
     v.plot(SE3_1)
     v.plot(SE3_2)
-    plt.show()
+    v.clear()
+
+    #plt.show()
     input()
