@@ -30,11 +30,11 @@ class SE3(Base):
                     raise Exception("SE3 Initialize Error! : The input should be transformation matrix or rotation matrix")
             elif len(args) == 2:
                 if (args[0].shape == (3,3))   \
-                        & (len(args[1] == 3)):
+                        & (len(args[1]) == 3):
                     self._qtn = self._R_to_quaternion(args[0])
                     self._t = self._check_vector(3,args[1])
                 elif (args[0].shape == (4,))   \
-                        & (len(args[1] == 3)):
+                        & (len(args[1]) == 3):
                     self._qtn = self._check_vector(4,args[0])
                     self._t = self._check_vector(3,args[1])
             else:

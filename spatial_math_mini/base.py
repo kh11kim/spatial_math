@@ -217,7 +217,7 @@ class Base(ABC):
         axis = Base._check_vector(3, axis)
         s = np.sin(angle/2)
         w = np.cos(angle/2)
-        x, y, z = axis / s
+        x, y, z = axis * s
         return np.array([w,x,y,z])
 
     @staticmethod    
