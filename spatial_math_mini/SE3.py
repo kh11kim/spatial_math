@@ -206,7 +206,12 @@ class SE3(Base):
             angle (float): angle.
         """
         return self._quaternion_trans_to_twistangle(self._qtn, self._t)
-
+    
+    def to_adjoint(self):
+        """ adjoint representation : Ad_T
+        """
+        return np.block([[self.R, np.zeros([3,3])],[Base._skew(self.t)@self.R, self.R]])
+        
     #--SE3 operators--
     def __matmul__(self, X):
         return self.dot(X)

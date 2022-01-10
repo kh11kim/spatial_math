@@ -113,6 +113,10 @@ class SE3Test(unittest.TestCase):
         SE3_z = SE3.Rz(np.pi/2)
         self.assertTrue(self.isSE3(SE3_z))
     
+    def test_adjoint(self):
+        SE3_x = SE3.Rx(np.pi/2)
+        self.assertTrue(SE3_x.to_adjoint().shape == (6,6))#
+
     def test_construct_trans(self):
         TransList = np.random.rand(5,3)
         for trans in TransList:
