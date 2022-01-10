@@ -108,7 +108,7 @@ class SO3(Base):
         Returns:
             R [SO3]: SO3 Rotation Class
         """
-        return SO3(SO3._get_quaternion_by_axis(theta, "x", unit))
+        return SO3(SO3._get_quaternion_by_axis(theta, "y", unit))
 
     @staticmethod
     def Rz(theta, unit='rad'):
@@ -122,7 +122,7 @@ class SO3(Base):
         Returns:
             R [SO3]: SO3 Rotation Class
         """
-        return SO3(SO3._get_quaternion_by_axis(theta, "x", unit))
+        return SO3(SO3._get_quaternion_by_axis(theta, "z", unit))
     
     # --Conversion--   
     def inv(self):

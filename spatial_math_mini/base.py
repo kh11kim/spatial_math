@@ -20,7 +20,7 @@ class Base(ABC):
         Returns:
             v [np.ndarray]: vector.
         """
-        if type(v) is list:
+        if (type(v) is list) | (type(v) is tuple):
             v = np.array(v)
         elif (type(v) is np.ndarray)\
                 & (v.shape == (vector_len,1)):
@@ -336,8 +336,9 @@ class Base(ABC):
         qtn = Base._check_vector(4, qtn)
         t = Base._check_vector(3, t)
 
-        if np.allclose(qtn,[1,0,0,0]):
+        if np.allclose(qtn, [1,0,0,0]):
             if np.allclose(np.linalg.norm(t),0):
+                #identity
                 tw = np.array([1.,0.,0.,0.,0.,0.])
                 theta = 0
             else:
