@@ -157,6 +157,7 @@ class SO3(Base):
     #--math--
     @staticmethod
     def _uniform_sampling_quaternion():
+        raise NotImplementedError("No use uniform sampling quaternion")
         s = np.random.random()
         sigma1, sigma2 = np.sqrt(1-s), np.sqrt(s)
         theta1, theta2 = np.random.uniform(size=2)
@@ -164,6 +165,21 @@ class SO3(Base):
         s2, c2 = np.sin(theta2), np.cos(theta2)
         qtn = np.array([c2*sigma2, s1*sigma1, c1*sigma1, s2*sigma2])
         return qtn
+
+    @staticmethod
+    def _uniform_sampling_rpy():
+        rnd = np.random.random(4)
+        roll = 2*np.pi*rnd[0] - np.pi
+        pitch = np.arccos(1 - 2*rnd[1]) + np.pi/2
+        if rnd[2] < 1/2:
+            if pitch < np.pi:
+                pitch += np.pi
+            else:
+                pitch -= np.pi
+        if pitch > np.pi:
+            pitch -= np.pi*2
+        yaw = 2*np.pi*rnd[3] - np.pi
+        return np.array([roll, pitch, yaw])
 
     #--SO3 operators--
     def __matmul__(self, X):
@@ -177,7 +193,7 @@ class SO3(Base):
         elif type(X) is SO3:
             w1, v1 = self._qtn[0], self._qtn[1:]
             w2, v2 = X._qtn[0], X._qtn[1:]
-            qtn = np.array([w1+w2-v1@v2, *(w1*v2 + w2*v1 + np.cross(v1, v2))])
+            qtn = np.array([w1*w2-v1@v2, *(w1*v2 + w2*v1 + np.cross(v1, v2))])
             return SO3(qtn)
 
     def __repr__(self):
