@@ -220,9 +220,11 @@ class SE3(Base):
         if type(X) is np.ndarray:
             if X.shape == (3,):
                 X = np.hstack([X,1])[:,None]
+                result = self.T.dot(X)[:-1]
+                return result.flatten()
             elif X.shape == (3,1):
                 X = np.vstack([X,1])
-            return self.T.dot(X)[:-1]
+                return self.T.dot(X)[:-1]
         
         elif type(X) is SE3:
             return SE3(self.T.dot(X.T))
