@@ -220,6 +220,57 @@ class Base(ABC):
         x, y, z = axis * s
         return np.array([w,x,y,z])
 
+    @staticmethod
+    def _rpy_to_quaternion(rpy):
+        """[summary]
+        Convert rpy to quaternion
+
+        Args:
+            rpy [np.ndarray(3)]: euler-angle representation(roll, pitch, yaw).
+
+        Returns:
+            qtn (np.ndarray(4)): unit quaternion
+            
+        """
+        roll, pitch, yaw = rpy
+        sr, cr = np.sin(roll/2), np.cos(roll/2)
+        sp, cp = np.sin(pitch/2), np.cos(pitch/2)
+        sy, cy = np.sin(yaw/2), np.cos(yaw/2)
+        w = cr * cp * cy + sr * sp * sy
+        x = sr * cp * cy - cr * sp * sy
+        y = cr * sp * cy + sr * cp * sy
+        z = cr * cp * sy - sr * sp * cy
+        qtn = np.array([w, x, y, z])
+        return qtn
+    
+    @staticmethod
+    def _quaternion_to_rpy(qtn):
+        """[summary]
+        Convert quaternion to rpy
+
+        Args:
+            qtn (np.ndarray(4)): unit quaternion
+
+        Returns:
+            rpy [np.ndarray(3)]: euler-angle representation(roll, pitch, yaw).
+            
+        """
+        w, x, y, z = qtn
+        sinr_cosp = 2 * (w * x + y * z)
+        cosr_cosp = 1 - 2 * (x * x + y * y)
+        roll = np.arctan2(sinr_cosp, cosr_cosp)
+        sinp = 2 * (w * y - z * x)
+        if (abs(sinp) >= 1):
+            pitch = np.sign(sinp)*np.pi/2
+            print(pitch)
+        else:
+            pitch = np.arcsin(sinp)
+        siny_cosp = 2 * (w * z + x * y)
+        cosy_cosp = 1 - 2 * (y * y + z * z)
+        yaw = np.arctan2(siny_cosp, cosy_cosp)
+        rpy = np.array([roll, pitch, yaw])
+        return rpy
+
     @staticmethod    
     def _Rt_to_T(R, t):
         """[summary]

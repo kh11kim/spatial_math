@@ -42,6 +42,12 @@ class BaseTest(unittest.TestCase):
         self.assertTrue(np.allclose(angle_, angle))
         self.assertTrue(np.allclose(tw_, tw))
 
+    def test_rpy_to_qtn(self):
+        qtn = SO3.random()._qtn
+        rpy = Base._quaternion_to_rpy(qtn)
+        qtn_ = Base._rpy_to_quaternion(rpy)
+        self.assertTrue(np.allclose(qtn, qtn_), True)
+
 
 class SO3Test(unittest.TestCase):
     def isSO3(self, SO3_):

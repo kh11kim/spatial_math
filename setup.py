@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
  
 setup(
     name                = 'spatial_math_mini',
-    version             = '0.1.3.5',
+    version             = '0.1.3.7',
     description         = 'Python Module for spatial math with minimum dependency',
     author              = 'Kanghyun Kim',
     author_email        = 'kh11kim@kaist.ac.kr',

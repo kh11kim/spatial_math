@@ -48,7 +48,8 @@ class SO3(Base):
             R [SO3]: SO3 Rotation Class
         """
         if dist == "uniform":
-            qtn = SO3._uniform_sampling_quaternion()
+            rpy = SO3._uniform_sampling_rpy()
+            qtn = SO3._rpy_to_quaternion(rpy)
         return SO3(qtn)
 
     @staticmethod
@@ -149,11 +150,19 @@ class SO3(Base):
         Convert SO3 to AxisAngle. 
 
         Returns:
-            axis [size=3 np.ndarray]: array.
+            axis [size=3 np.ndarray]: axis of rotation.
             angle (float): angle.
         """
         return self._quaternion_to_axisangle(self._qtn)
+    
+    def to_rpy(self):
+        """[summary]
+        Convert SO3 to euler-angle representation(roll, pitch, yaw). 
 
+        Returns:
+            rpy [np.ndarray(3)]: a list of [roll, pitch, yaw]
+        """
+        return self._quaternion_to_rpy(self._qtn)
     #--math--
     @staticmethod
     def _uniform_sampling_quaternion():
